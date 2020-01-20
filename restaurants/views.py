@@ -2,17 +2,71 @@ from django.shortcuts import render, redirect
 from .models import Restaurant
 from .forms import RestaurantForm
 
+from .forms import SignupForm 
+#from django.contrib.auth import signin, authenticate
+
+
+
+from .forms import SigninForm
+#from django.contrib.auth import signout
+
+ 
+
 def signup(request):
-    
+    form = UserRegister()
+    if request.method == 'POST':
+        form = UserRegister(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+
+            user.set_password(user.password)
+            user.save()
+
+            login(request, user)
+            # Where you want to go after a successful signup
+            return redirect("successful-signup")
+    context = {
+        "form":form,
+    }
     return render(request, 'signup.html', context)
 
+
+
+
 def signin(request):
+    form = UserLogin()
+    if request.method == 'POST':
+        form = UserLogin(request.POST)
+        if form.is_valid():
+
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+
+            auth_user = authenticate(username=username, password=password)
+            if auth_user is not None:
+                login(request, auth_user)
+                # Where you want to go after a successful login
+                return redirect('successful-login')
+
+    context = {
+        "form":form
+    }
+    return render(request, 'signin.html', context)
     
-    return 
+
+
 
 def signout(request):
-    
-    return 
+    logout(request)
+    return redirect('success-page')
+
+
+
+
+
+
+
+
 
 def restaurant_list(request):
     context = {
@@ -39,6 +93,8 @@ def restaurant_create(request):
     }
     return render(request, 'create.html', context)
 
+
+
 def restaurant_update(request, restaurant_id):
     restaurant_obj = Restaurant.objects.get(id=restaurant_id)
     form = RestaurantForm(instance=restaurant_obj)
@@ -53,7 +109,19 @@ def restaurant_update(request, restaurant_id):
     }
     return render(request, 'update.html', context)
 
+
+
+
 def restaurant_delete(request, restaurant_id):
     restaurant_obj = Restaurant.objects.get(id=restaurant_id)
     restaurant_obj.delete()
     return redirect('restaurant-list')
+
+
+
+
+
+
+
+
+
