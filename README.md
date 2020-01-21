@@ -11,3 +11,4 @@
 9. Create a link for the authentication views in the nav-bar.
 10. Pass the tests.
 11. Push your code.
+.
